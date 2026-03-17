@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Login | Design Quiz Console</title>
+   <link rel="stylesheet" href="./styles/bootstrap.css" />
+    <link rel="stylesheet" href="/styles/app.css" />
+  </head>
+  <body class="d-flex align-items-center justify-content-center" style="min-height:100vh;">
+    <main class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-5">
+          <div class="card bg-panel text-white shadow-sm">
+            <div class="card-body p-5">
+              <h1 class="card-title">Login</h1>
+              <p class="text-muted">Access the quiz dashboard or administer question banks.</p>
+              <form id="login-form" class="mt-4">
+                <div class="mb-3 form-floating">
+                  <input type="email" class="form-control bg-dark text-white border-0" id="login-email" placeholder="Email" required />
+                  <label for="login-email">Email</label>
+                </div>
+                <div class="mb-3 form-floating">
+                  <input type="password" class="form-control bg-dark text-white border-0" id="login-password" placeholder="Password" required />
+                  <label for="login-password">Password</label>
+                </div>
+                <div class="mb-3">
+                  <button class="btn btn-primary w-100" type="submit">Log in</button>
+                </div>
+                <div class="alert alert-danger d-none" id="login-error" role="alert"></div>
+              </form>
+              <p class="text-center text-muted mb-0">
+                Need an account? <a href="/register.html" class="text-decoration-none">Register</a>
+              </p>
+            </div>
+          </div>
+          <p class="text-center text-muted mt-3">Admin credentials: admin@quizapp.com / AdminPass123</p>
+        </div>
+      </div>
+    </main>
+    <script type="module" src="/scripts/login.js"></script>
+  </body>
+</html>

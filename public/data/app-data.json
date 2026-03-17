@@ -1,0 +1,207 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "Mahmoud Shawky",
+      "email": "shawky@gmail.com",
+      "password": "Test12",
+      "role": "admin"
+    },
+    {
+      "id": 2,
+      "name": "Mohamed ali",
+      "email": "student@gmail.com",
+      "password": "Student123",
+      "role": "student"
+    }
+  ],
+  "quizzes": [
+    {
+      "id": 1,
+      "title": "JavaScript Fundamentals",
+      "category": "Programming",
+      "description": "Understand scoping, loops, and modern syntax.",
+      "questionCount": 3,
+      "questionIds": [1, 2, 8],
+      "duration": 20
+    },
+    {
+      "id": 2,
+      "title": "World History: Ancient Civilizations",
+      "category": "History",
+      "description": "From Mesopotamia to the Roman Empire.",
+      "questionCount": 2,
+      "questionIds": [4, 7],
+      "duration": 25
+    },
+    {
+      "id": 3,
+      "title": "Basic Chemistry Concepts",
+      "category": "Science",
+      "description": "Atoms, molecules, and lab thinking.",
+      "questionCount": 2,
+      "questionIds": [3, 5],
+      "duration": 15
+    },
+    {
+      "id": 4,
+      "title": "The Renaissance Minds",
+      "category": "History",
+      "description": "Art, science, and explorers of the Renaissance.",
+      "questionCount": 2,
+      "questionIds": [4, 6],
+      "duration": 30
+    },
+    {
+      "id": 5,
+      "title": "Modern Literature Hallmarks",
+      "category": "Literature",
+      "description": "Key authors and movements that shaped the 20th century.",
+      "questionCount": 2,
+      "questionIds": [6, 10],
+      "duration": 18
+    }
+  ],
+  "questions": [
+    {
+      "id": 1,
+      "question": "What is the correct way to declare a variable in JavaScript using ES6 syntax?",
+      "category": "Programming",
+      "options": [
+        "var myVariable;",
+        "let myVariable;",
+        "variable myVariable;",
+        "declare myVariable;"
+      ],
+      "correctAnswers": [
+        1
+      ]
+    },
+    {
+      "id": 2,
+      "question": "Which of the following is NOT a primitive data type in JavaScript?",
+      "category": "Programming",
+      "options": [
+        "String",
+        "Number",
+        "Boolean",
+        "Array"
+      ],
+      "correctAnswers": [
+        3
+      ]
+    },
+    {
+      "id": 3,
+      "question": "What is the chemical symbol for Gold?",
+      "category": "Science",
+      "options": [
+        "Go",
+        "Gd",
+        "Au",
+        "Ag"
+      ],
+      "correctAnswers": [
+        2
+      ]
+    },
+    {
+      "id": 4,
+      "question": "Which ancient civilization built the pyramids of Giza?",
+      "category": "History",
+      "options": [
+        "Romans",
+        "Egyptians",
+        "Greeks",
+        "Persians"
+      ],
+      "correctAnswers": [
+        1
+      ]
+    },
+    {
+      "id": 5,
+      "question": "What is the pH value of a neutral solution?",
+      "category": "Science",
+      "options": [
+        "0",
+        "7",
+        "14",
+        "10"
+      ],
+      "correctAnswers": [
+        1
+      ]
+    },
+    {
+      "id": 6,
+      "question": "Who wrote \"Romeo and Juliet\"?",
+      "category": "Literature",
+      "options": [
+        "Charles Dickens",
+        "William Shakespeare",
+        "Jane Austen",
+        "Mark Twain"
+      ],
+      "correctAnswers": [
+        1
+      ]
+    },
+    {
+      "id": 7,
+      "question": "Which explorer first circumnavigated the globe?",
+      "category": "History",
+      "options": [
+        "Christopher Columbus",
+        "Ferdinand Magellan",
+        "Vasco da Gama",
+        "Marco Polo"
+      ],
+      "correctAnswers": [
+        1
+      ]
+    },
+    {
+      "id": 8,
+      "question": "What does the === operator do in JavaScript?",
+      "category": "Programming",
+      "options": [
+        "Compares values and types",
+        "Assigns a value",
+        "Adds two values",
+        "Compares only value"
+      ],
+      "correctAnswers": [
+        0
+      ]
+    },
+    {
+      "id": 9,
+      "question": "The capital of France is?",
+      "category": "Geography",
+      "options": [
+        "London",
+        "Berlin",
+        "Paris",
+        "Madrid"
+      ],
+      "correctAnswers": [
+        2
+      ]
+    },
+    {
+      "id": 10,
+      "question": "Which novel introduced the character Atticus Finch?",
+      "category": "Literature",
+      "options": [
+        "To Kill a Mockingbird",
+        "1984",
+        "The Great Gatsby",
+        "Catch-22"
+      ],
+      "correctAnswers": [
+        0
+      ]
+    }
+  ]
+}

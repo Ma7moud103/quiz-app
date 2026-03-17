@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Question Bank | Design Quiz Console</title>
+   <link rel="stylesheet" href="./styles/bootstrap.css" />
+    <link rel="stylesheet" href="/styles/app.css" />
+  </head>
+  <body>
+    <header class="bg-panel py-3 sticky-top">
+      <div class="container d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div>
+          <h4 class="mb-0 text-white">Question Bank</h4>
+          <small class="text-muted">Admin-only area for questions and quizzes.</small>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <a class="btn btn-outline-light btn-sm" href="/dashboard.html">Dashboard</a>
+          <span id="user-greeting" class="text-white"></span>
+          <button id="logout-btn" class="btn btn-light btn-sm">Log out</button>
+        </div>
+      </div>
+    </header>
+    <main class="container py-5">
+      <div id="access-message" class="alert alert-warning d-none" role="alert"></div>
+      <div id="question-skeletons" class="question-skeletons">
+        <div class="placeholder-row">
+          <span class="col-12"></span>
+          <span class="col-8"></span>
+          <span class="col-6"></span>
+        </div>
+        <div class="placeholder-row">
+          <span class="col-11"></span>
+          <span class="col-9"></span>
+          <span class="col-5"></span>
+        </div>
+        <div class="placeholder-row">
+          <span class="col-10"></span>
+          <span class="col-7"></span>
+          <span class="col-4"></span>
+        </div>
+      </div>
+      <section id="question-section" class="d-none space-y-4">
+        <div class="card bg-panel text-white">
+          <div class="card-body">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+              <div>
+                <h5 class="mb-1">Manage questions</h5>
+                <p class="text-muted mb-0">Only admins can edit the bank.</p>
+              </div>
+              <div class="d-flex gap-2">
+                <span id="total-count" class="badge text-bg-info"></span>
+                <span id="visible-count" class="badge text-bg-secondary"></span>
+              </div>
+            </div>
+            <div id="category-filters" class="d-flex flex-wrap gap-2"></div>
+          </div>
+        </div>
+        <div class="card bg-panel text-white">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div>
+                <h6 class="mb-0 text-white">Questions</h6>
+              </div>
+              <button id="reset-question" class="btn btn-sm btn-success">Create Question</button>
+            </div>
+            <div class="question-table-wrapper">
+              <div class="table-responsive">
+                <table class="table table-borderless text-white mb-0">
+                <thead>
+                  <tr>
+                    <th>Question</th>
+                    <th>Category</th>
+                    <th>Options</th>
+                    <th>Correct answer</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="question-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="card bg-panel text-white">
+          <div class="card-body">
+            <h5 class="mb-3">Create Quiz</h5>
+            <form id="quiz-form" class="row g-3">
+              <div class="col-md-6 form-floating">
+                <input type="text" class="form-control bg-dark text-white border-0" id="quiz-title" placeholder="Quiz title" required />
+                <label for="quiz-title">Quiz title</label>
+              </div>
+              <div class="col-md-3 form-floating">
+                <input type="text" class="form-control bg-dark text-white border-0" id="quiz-category" placeholder="Category" required />
+                <label for="quiz-category">Category</label>
+              </div>
+              <div class="col-md-3 form-floating">
+                <input type="number" min="5" step="1" class="form-control bg-dark text-white border-0" id="quiz-duration" placeholder="Duration" required />
+                <label for="quiz-duration">Duration (minutes)</label>
+              </div>
+              <div class="col-12">
+                <label class="form-label text-muted">Select questions</label>
+                <div id="quiz-questions-list" class="d-flex flex-wrap gap-2"></div>
+                <p id="quiz-selection-summary" class="small text-muted mt-2 mb-0">0 questions selected</p>
+              </div>
+              <div class="col-12 text-end">
+                <button type="submit" class="btn btn-primary">Save quiz</button>
+              </div>
+            </form>
+            <div id="quiz-feedback" class="mt-3"></div>
+          </div>
+        </div>
+      </section>
+      <div id="question-modal" class="question-modal d-none">
+        <div class="question-modal-dialog">
+          <div class="card bg-panel text-white">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                  <h5 id="question-form-title" class="mb-0">Add Question</h5>
+                  <small id="question-form-subtitle" class="text-muted">Create a fresh question to expand the bank.</small>
+                </div>
+                <button type="button" id="cancel-edit" class="btn btn-outline-light btn-sm d-none">Cancel edit</button>
+              </div>
+              <form id="question-form" class="row g-3">
+                <input type="hidden" id="question-id" />
+                <div class="col-12 form-floating">
+                  <textarea class="form-control bg-dark text-white border-0" id="question-text" placeholder="Type the question" rows="2" required></textarea>
+                  <label for="question-text">Question text</label>
+                </div>
+                <div class="col-md-6 form-floating">
+                  <input type="text" class="form-control bg-dark text-white border-0" id="question-category" placeholder="Category" required />
+                  <label for="question-category">Category</label>
+                </div>
+                <div class="col-12">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div>
+                      <h6 class="mb-0">Answer options</h6>
+                      <small class="text-muted">Select one or multiple correct answers.</small>
+                    </div>
+                    <button id="add-option" type="button" class="btn btn-outline-light btn-sm">Add option</button>
+                  </div>
+                  <div id="option-fields" class="d-flex flex-column gap-2"></div>
+                </div>
+                <div class="col-12 text-end">
+                  <button type="submit" id="save-question-btn" class="btn btn-success">Save question</button>
+                </div>
+              </form>
+              <div id="question-feedback" class="mt-3"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <script type="module" src="/scripts/question-bank.js"></script>
+  </body>
+</html>
