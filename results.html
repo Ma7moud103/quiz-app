@@ -1,44 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Results | Design Quiz Console</title>
-      <link rel="stylesheet" href="./styles/bootstrap.css" />
-
     <link rel="stylesheet" href="/styles/app.css" />
-  </head>
-  <body>
-    <header class="bg-panel py-3 sticky-top">
-      <div class="container d-flex align-items-center justify-content-between">
-        <div>
-          <h4 class="mb-0 text-white">Quiz Results</h4>
-          <small class="text-muted">Review your latest run.</small>
+</head>
+<body>
+    <!-- HEADER -->
+    <header>
+        <div class="container">
+            <div>
+                <h4>Quiz Results</h4>
+                <small>Review your latest run.</small>
+            </div>
+            <div class="d-flex">
+                <a href="/dashboard.html">Dashboard</a>
+                <span id="user-greeting"></span>
+                <button id="logout-btn">Log out</button>
+            </div>
         </div>
-        <div class="d-flex align-items-center gap-3">
-          <a class="btn btn-outline-light btn-sm" href="/dashboard.html">Dashboard</a>
-          <span id="user-greeting" class="text-white"></span>
-          <button id="logout-btn" class="btn btn-light btn-sm">Log out</button>
-        </div>
-      </div>
     </header>
-    <main class="container py-5">
-      <div id="result-card" class="card bg-panel text-white shadow-sm">
-        <div class="card-body d-flex flex-column gap-3">
-          <div id="result-content" class="placeholder-glow"></div>
+
+    <!-- MAIN CONTENT -->
+    <main>
+        <!-- Results Card -->
+        <div id="result-card" class="card">
+            <div class="card-body">
+                <div id="result-content" class="placeholder-glow"></div>
+            </div>
         </div>
-      </div>
-      <div id="review-container" class="card bg-panel text-white shadow-sm mt-4 d-none">
-        <div class="card-body">
-          <h5 class="mb-3">Quiz review</h5>
-          <div id="review-list" class="d-flex flex-column gap-3"></div>
+
+        <!-- Review Container -->
+        <div id="review-container" class="card d-none">
+            <div class="card-body">
+                <h5>Quiz review</h5>
+                <div id="review-list" class="d-flex"></div>
+            </div>
         </div>
-      </div>
-      <div class="d-flex justify-content-between mt-3">
-        <button id="review-btn" class="btn btn-outline-light" type="button" disabled>Review quiz</button>
-        <a class="btn btn-success" href="/dashboard.html">Back to dashboard</a>
-      </div>
+
+        <!-- Action Buttons -->
+        <div class="d-flex justify-content-between" style="margin-top: 1.5rem; gap: 1rem;">
+            <button id="review-btn" type="button" disabled>Review quiz</button>
+            <a href="/dashboard.html" class="btn btn-success">Back to dashboard</a>
+        </div>
     </main>
+
+    <!-- Scripts -->
     <script type="module" src="/scripts/results.js"></script>
-  </body>
+</body>
 </html>

@@ -1,65 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Quiz | Design Quiz Console</title>
-    <link rel="stylesheet" href="./styles/bootstrap.css" />
-
     <link rel="stylesheet" href="/styles/app.css" />
-  </head>
-  <body>
-    <header class="bg-panel py-3 sticky-top">
-      <div class="container d-flex align-items-center justify-content-between">
-        <div>
-          <h4 class="mb-0 text-white">Quiz Runner</h4>
-          <small class="text-muted">Take the quiz you selected.</small>
-        </div>
-        <div class="d-flex align-items-center gap-3">
-          <a class="btn btn-outline-light btn-sm" href="/dashboard.html">Dashboard</a>
-          <span id="user-greeting" class="text-white"></span>
-          <button id="logout-btn" class="btn btn-light btn-sm">Log out</button>
-        </div>
-      </div>
-    </header>
-    <main class="container py-5">
-      <div class="card bg-panel text-white shadow-sm mb-4">
-        <div class="card-body">
-          <div class="d-flex align-items-start justify-content-between gap-3">
+    <link rel="stylesheet" href="styles/app.css">
+</head>
+<body>
+    <!-- HEADER -->
+    <header>
+        <div class="container">
             <div>
-              <h3 id="quiz-title"></h3>
-              <p id="quiz-description" class="text-muted mb-1"></p>
+                <h4>Quiz Runner</h4>
+                <small>Take the quiz you selected.</small>
             </div>
-            <div class="text-end">
-              <span id="quiz-progress" class="badge text-bg-secondary">0/0</span>
-              <p class="text-muted small mb-0">
-                Score: <span id="quiz-score">0</span>
-              </p>
+            <div class="d-flex">
+                <a href="/dashboard.html">Dashboard</a>
+                <span id="user-greeting"></span>
+                <button id="logout-btn">Log out</button>
             </div>
-          </div>
-          <div id="quiz-placeholder" class="placeholder-glow mt-4">
-            <span class="placeholder col-8"></span>
-            <p class="placeholder col-6"></p>
-            <div class="d-flex gap-2">
-              <span class="placeholder col-4"></span>
-              <span class="placeholder col-3"></span>
-            </div>
-          </div>
-          <div id="quiz-panel" class="d-none mt-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <span id="quiz-question-label" class="badge text-bg-info"></span>
-              <span id="quiz-question-index" class="text-muted small"></span>
-            </div>
-            <h4 id="quiz-question-text" class="fw-semibold"></h4>
-            <div id="quiz-options" class="row g-3 mt-3"></div>
-            <div id="quiz-feedback" class="mt-3 text-danger small"></div>
-            <div class="d-flex justify-content-end mt-4">
-              <button id="next-question-btn" class="btn btn-primary" type="button">Next question</button>
-            </div>
-          </div>
         </div>
-      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main>
+        <div class="card">
+            <div class="card-body">
+                <!-- Quiz Header -->
+                <div class="d-flex justify-content-between">
+                    <div style="flex: 1;">
+                        <h3 id="quiz-title"></h3>
+                        <p id="quiz-description"></p>
+                    </div>
+                    <div class="text-end">
+                        <span id="quiz-progress"></span>
+                        <p class="text-muted">
+                            Score: <span id="quiz-score">0</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div id="quiz-progress-bar"></div>
+
+                <!-- Loading State -->
+                <div id="quiz-placeholder" class="placeholder-glow mt-4">
+                    <span class="placeholder col-8" style="display: block; margin-bottom: 1rem;"></span>
+                    <p class="placeholder col-6" style="display: block; margin-bottom: 1.5rem;"></p>
+                    <div class="d-flex gap-2" style="gap: 0.5rem;">
+                        <span class="placeholder col-4" style="display: block; height: 3rem; margin-bottom: 0.5rem;"></span>
+                    </div>
+                </div>
+
+                <!-- Quiz Panel -->
+                <div id="quiz-panel" class="d-none mt-4">
+                    <!-- Question Label and Index -->
+                    <div class="d-flex justify-content-between mb-3" style="margin-bottom: 1rem;">
+                        <span id="quiz-question-label"></span>
+                        <span id="quiz-question-index" class="text-muted"></span>
+                    </div>
+
+                    <!-- Question Text -->
+                    <h4 id="quiz-question-text" style="font-size: 1.4rem; margin-bottom: 1.5rem;"></h4>
+
+                    <!-- Options -->
+                    <div id="quiz-options" class="mt-4"></div>
+
+                    <!-- Feedback Message -->
+                    <div id="quiz-feedback"></div>
+
+                    <!-- Navigation Buttons -->
+                    <div class="d-flex justify-content-end mt-4" style="margin-top: 2rem; gap: 1rem;">
+                        <button type="button" style="background: none; border: none; color: #999; cursor: pointer; font-size: 1rem;">
+                            ← Previous
+                        </button>
+                        <button id="next-question-btn" type="button">
+                            Next →
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
+
+    
+
+    <!-- Scripts -->
     <script type="module" src="/scripts/quiz.js"></script>
-  </body>
+</body>
 </html>
