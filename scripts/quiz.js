@@ -1,14 +1,14 @@
 /**
- * الـ Quiz Runner Application
- * الكود ده هو اللي بيقوم بالليلة: بيعمل start للكويز، بيعرض الأسئلة، بياخد الاختيارات، وبيحسب الـ score.
- * شغال ES6 modules وبيسيف الـ session في الـ localStorage عشان الداتا متطيرش لو عملت refresh.
+ * Quiz Runner Application
+ * Starts a quiz, shows questions, tracks the user's selections, and keeps score.
+ * Works as an ES6 module and stores the session in localStorage so data stays across refreshes.
  */
 
 import { authService } from './auth.js';
 import { askConfirmation } from './confirm.js';
 
 // ============================================================================
-// الـ Constants
+// Constants
 // ============================================================================
 
 const SESSION_KEY = 'dq-quiz-session'; 
@@ -16,20 +16,21 @@ const RESULT_KEY = 'dq-last-result';
 const REVIEW_KEY = 'dq-review';        
 const DATA_URL = 'public/data/app-data.json'; 
 
+// Data helper responsible for loading quiz + question data once per session.
 // ============================================================================
-// الـ Quiz Data Service (شغلته يسحب الداتا ويشيلها عنده)
+// Quiz Data Service — handles fetching the JSON and caching it locally.
 // ============================================================================
 
 class QuizDataService {
   static cache = null;
 
   /**
-   * بيعمل fetch للداتا من ملف الـ JSON
-   * @returns {Promise<Object>} الداتا اللي فيها الكويزات والأسئلة
+   * Fetch application data from the JSON file.
+   * @returns {Promise<Object>} The quizzes, questions, and users payload.
    */
   static async fetchAppData() {
     if (this.cache) {
-      return this.cache; // لو الداتا موجودة في الـ cache رجعها علطول بدل ما يعمل fetch تاني
+      return this.cache; // Reuse cached data instead of fetching again.
     }
 
     try {
@@ -38,7 +39,7 @@ class QuizDataService {
       const response = await fetch(DATA_URL, { cache: 'no-store' });
       
       if (!response.ok) {
-        // لو الـ response فيه مشكلة بنرمي error بوضح السبب
+        // If the response object reports an error, throw a descriptive one.
         if (response.status === 404) {
           throw new Error('ملف الـ json مش موجود في المسار ده.');
         } else {
@@ -54,19 +55,19 @@ class QuizDataService {
     }
   }
 
-  // بياخد الـ ID ويطلعلك الكويز بتاعه
+  // Given a quiz ID, return the matching quiz definition.
   static async getQuizById(quizId) {
     const data = await this.fetchAppData();
     return data.quizzes?.find((q) => q.id === quizId) || null;
   }
 
-  // بياخد الـ ID ويطلعلك السؤال بتاعه
+  // Given a question ID, return the corresponding record.
   static async getQuestionById(questionId) {
     const data = await this.fetchAppData();
     return data.questions?.find((q) => q.id === questionId) || null;
   }
 
-  // بيعمل load لكل الأسئلة اللي تبع كويز معين باستخدام الـ IDs بتاعتهم
+  // Load all questions described by the supplied IDs.
   static async loadQuestionsForQuiz(questionIds) {
     const data = await this.fetchAppData();
     const allQuestions = data.questions || [];
@@ -78,15 +79,17 @@ class QuizDataService {
 }
 
 // ============================================================================
-// الـ Quiz Runner Controller (المايسترو)
+// Quiz runner controller stitches the session data to the interface.
+// ============================================================================
+// Quiz Runner Controller (maestro)
 // ============================================================================
 
 class QuizRunner {
   constructor() {
-    // بيتأكد إن الـ user عامل login، لو مش عامل بيبعته لصفحة الـ index
+    // Ensure the user is logged in; otherwise send them back to login.
     this.currentUser = authService.requireLogin('/index.html');
 
-    // بنمسك الـ DOM Elements اللي هنحتاجها من الـ HTML
+    // Cache the DOM elements we need from the HTML.
     this.greetingEl = document.getElementById('user-greeting');
     this.logoutBtn = document.getElementById('logout-btn');
     this.titleEl = document.getElementById('quiz-title');
@@ -102,43 +105,46 @@ class QuizRunner {
     this.feedbackEl = document.getElementById('quiz-feedback');
     this.nextBtn = document.getElementById('next-question-btn');
 
-    // الـ State بتاعة الكويز
+    // Track the current quiz session, selection, and submission state.
     this.session = null;
     this.selectedAnswer = null;
     this.isAnswerSubmitted = false;
 
-    // تشغيل الـ functions الأساسية
+    // Run the initialization helpers.
     this.bindEvents();
     this.populateUserInfo();
     this.initialize();
   }
 
-  // بنربط الـ click events بالزراير
+  // Wire click events for logout and navigation buttons.
+  // Attach logout and next buttons to their handlers.
   bindEvents() {
     this.logoutBtn.addEventListener('click', this.handleLogout.bind(this));
     this.nextBtn.addEventListener('click', this.handleNext.bind(this));
   }
 
-  // بيعرض اسم الـ user اللي فاتح دلوقتي
+  // Display the greeting for the logged-in user.
+  // Update the UI greeting with the authenticated user.
   populateUserInfo() {
     if (this.currentUser?.name) {
       this.greetingEl.textContent = this.currentUser.name;
     }
   }
 
-  // الـ بداية: بيعمل load للـ session ويبدأ يظهر الكويز
+  // At startup, load the session and begin displaying the quiz.
+  // Load the saved quiz session and render the first question.
   async initialize() {
     try {
       this.session = this.loadSession();
 
       if (!this.session || !this.session.questions?.length) {
-        this.showMissingSession(); // لو مفيش كويز بيبعته للـ dashboard
+      this.showMissingSession(); // If no session exists, send the user back to the dashboard.
         return;
       }
 
-      this.ensureSessionStructure(); // بيتأكد إن الـ session object سليم
+      this.ensureSessionStructure(); // Ensure the session object has the expected shape.
 
-      // بنخفي الـ loading placeholder ونظهر الـ panel بتاعة الكويز
+      // Hide the loading placeholder and show the quiz panel.
       this.placeholder.classList.add('d-none');
       this.panel.classList.remove('d-none');
 
@@ -149,7 +155,8 @@ class QuizRunner {
     }
   }
 
-  // بيجيب الـ session من الـ localStorage
+  // Read the current quiz session from localStorage.
+  // Deserialize the quiz session from localStorage.
   loadSession() {
     const raw = window.localStorage.getItem(SESSION_KEY);
     if (!raw) return null;
@@ -160,13 +167,15 @@ class QuizRunner {
     }
   }
 
-  // بيسيف الـ session في الـ localStorage عشان لو عمل refresh
+  // Persist the session into localStorage so refreshing keeps the progress.
+  // Persist the current progress so it survives refreshes.
   saveSession() {
     if (!this.session) return;
     window.localStorage.setItem(SESSION_KEY, JSON.stringify(this.session));
   }
 
-  // بيتأكد إن الـ session فيها كل الـ properties والـ arrays المطلوبة
+  // Make sure the session object contains the needed properties and arrays.
+  // Guarantee the session object has all required fields before rendering.
   ensureSessionStructure() {
     if (!this.session) return;
     this.session.currentIndex = typeof this.session.currentIndex === 'number' ? this.session.currentIndex : 0;
@@ -177,7 +186,8 @@ class QuizRunner {
     }
   }
 
-  // بيعمل render للهيدر (العنوان، والـ progress bar والـ score)
+  // Render the header area including title, progress bar, and score.
+  // Refresh header text, progress bar and score display.
   renderHeader() {
     const total = this.session.questions.length;
     const current = Math.min(this.session.currentIndex + 1, total);
@@ -195,7 +205,8 @@ class QuizRunner {
     this.scoreEl.textContent = this.session.score ?? 0;
   }
 
-  // بيعرض السؤال الحالي والاختيارات بتاعته
+  // Display the active question and its answer choices.
+  // Draw the current question and its options.
   renderQuestion() {
     const currentQuestion = this.session.questions[this.session.currentIndex];
 
@@ -213,12 +224,13 @@ class QuizRunner {
 
     this.optionsEl.innerHTML = '';
     this.renderOptions(currentQuestion);
-    this.restorePreviousAnswer(); // لو مجاوب قبل كدة بيرجع الإجابة
-    this.updateNextButton();      // بيغير نص الزرار لـ Finish لو آخر سؤال
+    this.restorePreviousAnswer(); // Reapply any previously selected answer.
+    this.updateNextButton();      // Update the button label to "Finish" on the last question.
     this.renderHeader();
   }
 
-  // بيكريت زراير الـ options في الـ HTML
+  // Generate the option buttons inside the HTML layout.
+  // Generate the option buttons for a question.
   renderOptions(question) {
     const options = question.options || [];
     options.forEach((optionText, index) => {
@@ -229,7 +241,7 @@ class QuizRunner {
       button.type = 'button';
       button.className = 'btn btn-outline-light rounded-3 w-100 text-start option-choice';
       
-      const letterLabel = String.fromCharCode(65 + index); // بيدي حروف A, B, C...
+      const letterLabel = String.fromCharCode(65 + index); // Assign letters A, B, C... to the options.
       button.innerHTML = `<strong>${letterLabel}.</strong> ${this.escapeHtml(optionText)}`;
 
       button.addEventListener('click', () => this.selectAnswer(index, button));
@@ -238,7 +250,8 @@ class QuizRunner {
     });
   }
 
-  // لو الـ user كان مختار إجابة للسؤال ده قبل كدة، بنرجع الـ active class
+  // If the user already selected an answer for this question, mark it active.
+  // Highlight the previously selected option if the user already answered.
   restorePreviousAnswer() {
     const previousAnswerIndex = this.session.answers?.[this.session.currentIndex];
     if (typeof previousAnswerIndex === 'number' && previousAnswerIndex >= 0) {
@@ -250,10 +263,11 @@ class QuizRunner {
     }
   }
 
-  // لما الـ user يدوس على إجابة
+  // When the user clicks an option, record the selection.
+  // Track user selection and persist it immediately.
   selectAnswer(index, button) {
     this.selectedAnswer = index;
-    // بنشيل الـ active من الكل ونحطها للي اتداس عليه بس
+    // Remove the active class from all options, then mark the clicked button.
     this.optionsEl.querySelectorAll('.option-choice').forEach((btn) => btn.classList.remove('active'));
     button.classList.add('active');
     this.feedbackEl.textContent = '';
@@ -264,21 +278,23 @@ class QuizRunner {
     }
   }
 
-  // بيخلي نص الزرار Finish quiz لو ده آخر سؤال
+  // Set the Next button label to "Finish quiz" on the last question.
+  // Update the Next/Finish button label depending on progress.
   updateNextButton() {
     const isLastQuestion = this.session.currentIndex + 1 >= this.session.questions.length;
     this.nextBtn.textContent = isLastQuestion ? 'Finish quiz' : 'Next question';
   }
 
-  // لما الـ user يدوس على زرار Next
+  // Handle the Next button click, or finish if on the last question.
+  // Validate selection, grade it, and move to the next question.
   handleNext() {
-    // validation: لازم يختار إجابة الأول
+    // Validation: require a selected answer before moving on.
     if (this.selectedAnswer === null) {
       this.feedbackEl.textContent = '⚠️ معلش اختار إجابة الأول.';
       return;
     }
 
-    this.evaluateAnswer(); // بنشوف الإجابة صح ولا لأ ونزود الـ score
+    this.evaluateAnswer(); // Check if the answer is correct and adjust the score.
     this.session.currentIndex += 1;
     this.saveSession();
 
@@ -290,7 +306,8 @@ class QuizRunner {
     this.renderQuestion();
   }
 
-  // بيقارن الـ selectedAnswer بالـ correctAnswers
+  // Compare the selected answer against the correct answers list.
+  // Compare the selected option with the stored correct answers.
   evaluateAnswer() {
     const currentQuestion = this.session.questions[this.session.currentIndex];
     const correctAnswers = Array.isArray(currentQuestion.correctAnswers) ? currentQuestion.correctAnswers : [];
@@ -300,7 +317,8 @@ class QuizRunner {
     }
   }
 
-  // بينهي الكويز وبيسيف النتائج في الـ sessionStorage ويحولك لصفحة الـ results
+  // End the quiz, save the result and answers into sessionStorage, then redirect to results.
+  // Compile the result payload and redirect to the summary screen.
   finishQuiz() {
     const total = this.session.questions.length;
     const score = this.session.score;
@@ -327,7 +345,8 @@ class QuizRunner {
     window.location.href = '/results.html';
   }
 
-  // الـ logout مع رسالة الـ confirmation
+  // Logout with confirmation before clearing the session.
+  // Ask for confirmation and reset session-related storage on logout.
   async handleLogout() {
     const confirmed = await askConfirmation({
       title: 'Confirm sign out',
@@ -343,14 +362,15 @@ class QuizRunner {
     window.location.href = '/index.html';
   }
 
-  // بتعمل escape للـ HTML عشان تحميك من الـ XSS
+  // Escape HTML characters to guard against XSS.
+  // Guard against XSS when rendering free text from the data file.
   escapeHtml(text) {
     const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
     return String(text).replace(/[&<>"']/g, (char) => map[char]);
   }
 }
 
-// أول ما الـ DOM يحمل، بنعمل نيو QuizRunner
+// When the DOM is ready, instantiate QuizRunner.
 document.addEventListener('DOMContentLoaded', () => {
   new QuizRunner();
 });

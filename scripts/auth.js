@@ -65,7 +65,7 @@ class AuthService {
     const users = await this.loadUsers();
     const normalized = (email || '').trim().toLowerCase();
     const user = users.find(
-      (entry) => entry.email.toLowerCase() === normalized && entry.password === password,
+      (entry) => entry.email.toLowerCase() === normalized && entry.password === password
     );
     
     if (!user) {
@@ -116,11 +116,11 @@ class AuthService {
    * @returns {Object} Current user object
    * @throws {Error} If user not logged in
    */
-  requireLogin(fallback = '/index.html') {
+  requireLogin(dir = '/index.html') {
     const user = this.getCurrentUser();
     
     if (!user) {
-      window.location.href = fallback;
+      window.location.href = dir;
       throw new Error('Redirecting to login.');
     }
     

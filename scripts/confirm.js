@@ -8,8 +8,7 @@ overlay.innerHTML = `
       <button type="button" class="btn btn-outline-light" data-confirm-cancel>Cancel</button>
       <button type="button" class="btn btn-primary" data-confirm-accept>Yes</button>
     </div>
-  </div>`
-;
+  </div>`;
 
 document.body.appendChild(overlay);
 
@@ -18,24 +17,23 @@ const messageEl = overlay.querySelector('[data-confirm-message]');
 const acceptBtn = overlay.querySelector('[data-confirm-accept]');
 const cancelBtn = overlay.querySelector('[data-confirm-cancel]');
 
-let currentResolver;
+let resolveConfirmation;
 
-function close(confirm) {
-  if (!currentResolver) return;
+function closeDialog(result) {
+  if (!resolveConfirmation) return;
   overlay.classList.remove('active');
-  const resolver = currentResolver;
-  currentResolver = null;
-  resolver(confirm);
+  resolveConfirmation(result);
+  resolveConfirmation = null;
 }
 
 overlay.addEventListener('click', (event) => {
   if (event.target === overlay) {
-    close(false);
+    closeDialog(false);
   }
 });
 
-acceptBtn.addEventListener('click', () => close(true));
-cancelBtn.addEventListener('click', () => close(false));
+acceptBtn.addEventListener('click', () => closeDialog(true));
+cancelBtn.addEventListener('click', () => closeDialog(false));
 
 export function askConfirmation({
   title = 'Confirm',
@@ -43,8 +41,8 @@ export function askConfirmation({
   confirmLabel = 'Yes',
   cancelLabel = 'Cancel',
 } = {}) {
-  if (currentResolver) {
-    close(false);
+  if (resolveConfirmation) {
+    closeDialog(false);
   }
   titleEl.textContent = title;
   messageEl.textContent = message;
@@ -52,6 +50,6 @@ export function askConfirmation({
   cancelBtn.textContent = cancelLabel;
   overlay.classList.add('active');
   return new Promise((resolve) => {
-    currentResolver = resolve;
+    resolveConfirmation = resolve;
   });
 }

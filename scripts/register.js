@@ -1,10 +1,12 @@
 import { authService, getCurrentUser } from './auth.js';
 
+// Handles the registration form lifecycle and validation.
 class RegisterController {
   constructor() {
     this.form = document.getElementById('register-form');
     this.errorEl = document.getElementById('register-error');
     this.successEl = document.getElementById('register-success');
+    // Prevent signed-in users from re-registering.
     if (getCurrentUser()) {
       window.location.href = '/dashboard.html';
       return;
@@ -15,6 +17,7 @@ class RegisterController {
   async handleSubmit(event) {
     event.preventDefault();
     this.hideMessages();
+    // Gather form values and compare the confirmation field.
     const payload = this.buildPayload();
     if (payload.password !== payload.confirm) {
       this.showError('Passwords must match.');
@@ -22,6 +25,7 @@ class RegisterController {
     }
     try {
       await authService.registerUser(payload);
+      // Inform the user before redirecting back to login.
       this.successEl.textContent = 'Account ready – redirecting to login ...';
       this.successEl.classList.remove('d-none');
       this.form.reset();

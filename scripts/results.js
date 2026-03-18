@@ -1,14 +1,13 @@
 /**
- * تطبيق عرض النتائج (Results Presenter)
- * بيعرض نتيجة الكويز وبيعمل مراجعة (review) تفصيلية للأسئلة والإجابات.
- * بيستخدم ES6 modules والـ sessionStorage عشان يشيل الداتا بشكل مؤقت.
+ * Results Presenter
+ * Summarizes quiz outcomes and renders optional review details from sessionStorage.
+ * Uses ES6 modules and reads saved session data so the screen survives refreshes.
  */
 
 import { authService } from './auth.js';
 import { askConfirmation } from './confirm.js';
 
-// ============================================================================
-// Constants
+// Controller for the results page; it renders score summaries and optional review lists.
 // ============================================================================
 
 const RESULT_KEY = 'dq-last-result';
@@ -18,16 +17,13 @@ const REVIEW_KEY = 'dq-review';
 // Results Presenter Controller
 // ============================================================================
 
-/**
- * الـ ResultPresenter - مسؤول عن عرض النتيجة وإدارة الـ review
- * بيسحب الداتا من الـ sessionStorage وبيعمل render للـ UI بتاع النتيجة والمراجعة
- */
+// Manages the results screen: wires DOM nodes, loads stored session data, and renders the summary/review.
 class ResultPresenter {
   constructor() {
-    // التأكد إن الـ user عامل login
+    // Ensure the user is logged in before showing the results.
     this.currentUser = authService.requireLogin('/index.html');
 
-    // مسك الـ DOM Elements
+    // Cache the DOM nodes that the presenter will update.
     this.greetingEl = document.getElementById('user-greeting');
     this.logoutBtn = document.getElementById('logout-btn');
     this.contentEl = document.getElementById('result-content');
@@ -35,19 +31,19 @@ class ResultPresenter {
     this.reviewContainer = document.getElementById('review-container');
     this.reviewList = document.getElementById('review-list');
 
-    // الـ State
+    // Track the loaded result, review data, and UI state.
     this.resultData = null;
     this.reviewData = null;
     this.isReviewOpen = false;
 
-    // البداية (Initialize)
+    // Kick off initialization handlers.
     this.bindEvents();
     this.populateUserInfo();
     this.populate();
   }
 
   /**
-   * ربط الـ event listeners بالعناصر
+   * Hook up logout and review button listeners.
    */
   bindEvents() {
     this.logoutBtn.addEventListener('click', this.handleLogout.bind(this));
@@ -57,7 +53,7 @@ class ResultPresenter {
   }
 
   /**
-   * عرض اسم الـ user في الـ greeting
+   * Display the current user's name in the greeting area.
    */
   populateUserInfo() {
     if (this.currentUser?.name) {
@@ -66,10 +62,10 @@ class ResultPresenter {
   }
 
   /**
-   * الـ Method الأساسية - بتسحب النتائج وتعرضها
+   * Load stored result data and render the UI.
    */
   populate() {
-    // سحب الداتا من الـ sessionStorage
+    // Pull the saved result payload from sessionStorage.
     const resultPayload = sessionStorage.getItem(RESULT_KEY);
 
     if (!resultPayload) {
@@ -89,7 +85,7 @@ class ResultPresenter {
   }
 
   /**
-   * سحب بيانات الـ review من الـ sessionStorage
+   * Load review data from sessionStorage if present.
    */
   retrieveReviewData() {
     const reviewPayload = sessionStorage.getItem(REVIEW_KEY);
@@ -104,23 +100,23 @@ class ResultPresenter {
   }
 
   /**
-   * رسم (Render) نتائج الكويز في المنطقة المخصصة لها
+   * Render the score summary, percentage, and performance message.
    */
   renderResults() {
     if (!this.resultData) return;
 
     const { quizTitle, correct, total, percentage, duration, timestamp } = this.resultData;
 
-    // حساب الـ letter grade (A, B, C...)
+    // Compute the letter grade (A-F) for the percentage.
     const grade = this.calculateGrade(percentage);
 
-    // تظبيط شكل الـ timestamp
+    // Format the timestamp for the UI.
     const formattedDate = new Date(timestamp).toLocaleString();
 
-    // تحديد الـ CSS classes بناءً على الـ performance
+    // Choose CSS classes that reflect the achieved performance.
     const scoreClass = this.getScoreClass(percentage);
 
-    // بناء الـ HTML بتاع النتيجة
+    // Build the result summary HTML structure.
     this.contentEl.innerHTML = `
       <div class="mb-3">
         <h3 class="mb-1">${this.escapeHtml(quizTitle)}</h3>
@@ -165,7 +161,7 @@ class ResultPresenter {
   }
 
   /**
-   * حساب التقدير (Grade) بناءً على الـ percentage
+   * Determine the letter grade for the quiz percentage.
    */
   calculateGrade(percentage) {
     if (percentage >= 90) return 'A';
@@ -176,7 +172,7 @@ class ResultPresenter {
   }
 
   /**
-   * اختيار الـ CSS class للـ score بناءً على الـ performance
+   * Select the text class representing the score range.
    */
   getScoreClass(percentage) {
     if (percentage >= 80) return 'text-success';
@@ -185,7 +181,7 @@ class ResultPresenter {
   }
 
   /**
-   * اختيار الـ Bootstrap alert class بناءً على الـ performance
+   * Pick the Bootstrap alert class that matches the performance.
    */
   getPerformanceAlertClass(percentage) {
     if (percentage >= 80) return 'alert alert-success';
@@ -194,7 +190,7 @@ class ResultPresenter {
   }
 
   /**
-   * اختيار رسالة التشجيع بناءً على الـ score
+   * Create a motivating message based on the score percentage.
    */
   getPerformanceMessage(percentage, correct, total) {
     if (percentage >= 90) {
@@ -213,25 +209,25 @@ class ResultPresenter {
   }
 
   /**
-   * تظبيط حالة زرار الـ review
+   * Enable or disable the review button depending on available data.
    */
   configureReviewButton() {
     if (!this.reviewBtn) return;
 
-    // لو مفيش داتا للمراجعة، بنقفل الزرار
+    // If review data is missing, disable the button.
     if (!this.reviewData || !this.reviewData.questions) {
       this.reviewBtn.disabled = true;
       this.reviewBtn.title = 'Review data not available';
       return;
     }
 
-    // تفعيل الزرار وكتابة النص المبدئي
+    // Enable the review button and set its default label.
     this.reviewBtn.disabled = false;
     this.reviewBtn.textContent = 'Review quiz';
   }
 
   /**
-   * الـ handler بتاع زرار المراجعة - بيفتح ويقفل القسم ويعمل render لو محتاج
+   * Toggle and render the review section when the button is clicked.
    */
   handleReviewToggle() {
     if (!this.reviewContainer) return;
@@ -239,15 +235,15 @@ class ResultPresenter {
     const isHidden = this.reviewContainer.classList.contains('d-none');
 
     if (isHidden && !this.isReviewOpen) {
-      // أول مرة يفتح - بنرسم الـ review
+      // On the first open, render the review details.
       this.renderReview();
       this.isReviewOpen = true;
     }
 
-    // تبديل الـ visibility (إظهار/إخفاء)
+    // Toggle the review container's visibility.
     this.reviewContainer.classList.toggle('d-none');
 
-    // تحديث نص الزرار
+    // Update the review button text to match visibility.
     const newText = this.reviewContainer.classList.contains('d-none')
       ? 'Review quiz'
       : 'Hide review';
@@ -255,7 +251,7 @@ class ResultPresenter {
   }
 
   /**
-   * رسم تفاصيل المراجعة (الأسئلة، الإجابات، والشرح)
+   * Render each question-review card with answers and explanations.
    */
   renderReview() {
     if (!this.reviewList || !this.reviewData) return;
@@ -271,13 +267,13 @@ class ResultPresenter {
   }
 
   /**
-   * كاريته عنصر مراجعة لـ سؤال واحد
+   * Build the DOM element for a single reviewed question.
    */
   createReviewItem(question, index, answers) {
     const item = document.createElement('div');
     item.className = 'bg-panel border border-secondary rounded-3 p-3';
 
-    // الـ Question header
+    // Render the question header and category badge.
     const header = document.createElement('div');
     header.className = 'd-flex justify-content-between align-items-center mb-3';
     header.innerHTML = `
@@ -286,13 +282,13 @@ class ResultPresenter {
     `;
     item.appendChild(header);
 
-    // نص السؤال
+    // Display the question text.
     const questionText = document.createElement('p');
     questionText.className = 'mb-3 fw-semibold';
     questionText.textContent = question.question;
     item.appendChild(questionText);
 
-    // قائمة الاختيارات
+    // Append the options list for this question.
     const optionsList = this.createOptionsList(question, index, answers);
     item.appendChild(optionsList);
 
@@ -300,7 +296,7 @@ class ResultPresenter {
   }
 
   /**
-   * كاريته قائمة الاختيارات في مراجعة السؤال
+   * Create the list of options shown in the review card.
    */
   createOptionsList(question, questionIndex, answers) {
     const container = document.createElement('div');
@@ -324,13 +320,13 @@ class ResultPresenter {
   }
 
   /**
-   * كاريته عنصر اختيار واحد للمراجعة
+   * Create one option entry showing correctness and user choice.
    */
   createOptionElement(optionText, optionIndex, userAnswerIndex, correctAnswers) {
     const optionEl = document.createElement('div');
     optionEl.className = 'list-group-item bg-dark text-white border d-flex justify-content-between align-items-center';
 
-    // تحديد الـ styling بناءً على الإجابة صح ولا غلط
+    // Adjust styling classes based on whether the answer was correct or selected.
     const isCorrect = correctAnswers.includes(optionIndex);
     const isUserSelected = userAnswerIndex === optionIndex;
 
@@ -340,13 +336,13 @@ class ResultPresenter {
       optionEl.classList.add('border-warning', 'border-3');
     }
 
-    // نص الاختيار مع الـ letter label (A, B...)
+    // Label each option with its letter (A, B, C...).
     const letterLabel = String.fromCharCode(65 + optionIndex);
     const optionTextEl = document.createElement('span');
     optionTextEl.innerHTML = `<strong>${letterLabel}.</strong> ${this.escapeHtml(optionText)}`;
     optionEl.appendChild(optionTextEl);
 
-    // الـ Status badge (صح ولا غلطتك)
+    // Append a badge that highlights correctness or the user's answer.
     const badgeContainer = document.createElement('div');
     if (isCorrect) {
       const badge = document.createElement('span');
@@ -368,7 +364,7 @@ class ResultPresenter {
   }
 
   /**
-   * إظهار رسالة لو مفيش نتائج موجودة
+   * Show a warning message when no result data exists.
    */
   showNoResultsMessage() {
     this.contentEl.innerHTML = `
@@ -384,7 +380,7 @@ class ResultPresenter {
   }
 
   /**
-   * الـ Logout مع رسالة التأكيد
+   * Confirm sign-out, then clear stored data and navigate to login.
    */
   async handleLogout() {
     const confirmed = await askConfirmation({
@@ -396,7 +392,7 @@ class ResultPresenter {
 
     if (!confirmed) return;
 
-    // تنظيف الـ sessionStorage وعمل logout
+    // Clear the stored result/review data before logging out.
     sessionStorage.removeItem(RESULT_KEY);
     sessionStorage.removeItem(REVIEW_KEY);
     authService.logout();
@@ -404,7 +400,7 @@ class ResultPresenter {
   }
 
   /**
-   * عمل escape للـ HTML عشان نمنع الـ XSS
+   * Escape HTML characters to prevent XSS when inserting content.
    */
   escapeHtml(text) {
     const map = {
@@ -419,7 +415,7 @@ class ResultPresenter {
 }
 
 
-// تشغيل الـ result presenter أول ما الـ DOM يجهز
+// Instantiate the result presenter once the DOM is ready.
 document.addEventListener('DOMContentLoaded', () => {
   new ResultPresenter();
 });

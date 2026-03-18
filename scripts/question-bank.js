@@ -2,8 +2,10 @@ import { loadQuestions, persistQuestions, loadQuizzes, persistQuizzes } from './
 import { authService } from './auth.js';
 import { askConfirmation } from './confirm.js';
 
+// Admin dashboard for editing the question bank and composing quizzes.
 class QuestionBankApp {
   constructor() {
+    // Cache DOM nodes, initialize internal state, and ensure admin login.
     this.questionSection = document.getElementById('question-section');
     this.skeleton = document.getElementById('question-skeletons');
     this.accessMessage = document.getElementById('access-message');
@@ -51,6 +53,7 @@ class QuestionBankApp {
     this.enforceAccess();
   }
 
+  // Wire up UI controls such as logout, quiz form, and modal buttons.
   bindEvents() {
     this.logoutBtn.addEventListener('click', this.handleLogout.bind(this));
     this.questionForm.addEventListener('submit', this.handleQuestionSubmit.bind(this));
@@ -75,6 +78,7 @@ class QuestionBankApp {
     }
   }
 
+  // Block non-admin users and reveal the dashboard for admins.
   enforceAccess() {
     if (!authService.isAdmin(this.currentUser)) {
       this.skeleton.classList.add('d-none');
@@ -87,6 +91,7 @@ class QuestionBankApp {
     this.boot();
   }
 
+  // Load data, render filters, and initialize forms once the user is cleared.
   async boot() {
     try {
       this.state.questions = await loadQuestions();
@@ -105,6 +110,7 @@ class QuestionBankApp {
     }
   }
 
+  // Update the category list whenever the question set changes.
   refreshCategories() {
     const categories = new Set(this.state.questions.map((entry) => entry.category));
     this.state.categories = ['All', ...categories];
@@ -113,6 +119,7 @@ class QuestionBankApp {
     }
   }
 
+  // Ask for confirmation and log the admin out of the question bank.
   handleLogout() {
     return askConfirmation({
       title: 'Confirm sign out',
@@ -126,6 +133,7 @@ class QuestionBankApp {
     });
   }
 
+  // Allow adding additional option fields while respecting limits.
   handleAddOption() {
     if (this.optionContainer.children.length >= this.maxOptions) return;
     this.optionContainer.appendChild(this.buildOptionField('', false));
@@ -133,6 +141,7 @@ class QuestionBankApp {
     this.updateOptionControls();
   }
 
+  // Process submission for new or edited question entries.
   handleQuestionSubmit(event) {
     event.preventDefault();
     this.feedbackEl.innerHTML = '';
@@ -153,6 +162,7 @@ class QuestionBankApp {
     this.resetForm();
   }
 
+  // Validate form inputs and build the question object.
   buildQuestionPayload() {
     const text = this.questionText.value.trim();
     const category = this.questionCategory.value.trim();
@@ -186,6 +196,7 @@ class QuestionBankApp {
     return { data: payload };
   }
 
+  // Draw category filter buttons dynamically.
   renderFilters() {
     this.filtersEl.innerHTML = '';
     this.state.categories.forEach((category) => {
@@ -202,6 +213,7 @@ class QuestionBankApp {
     });
   }
 
+  // Render the question table with edit/delete actions.
   renderTable() {
     const filtered = this.state.questions.filter((entry) =>
       this.state.currentCategory === 'All' || entry.category === this.state.currentCategory,
@@ -245,6 +257,7 @@ class QuestionBankApp {
     });
   }
 
+  // Format the correct answer list for display in the table.
   formatCorrectAnswers(question) {
     if (!question.correctAnswers?.length) return 'None';
     return question.correctAnswers.map((index) => {
@@ -253,6 +266,7 @@ class QuestionBankApp {
     }).join('');
   }
 
+  // Confirm and remove the selected question.
   handleDelete(id) {
     askConfirmation({
       title: 'Delete question',
@@ -270,6 +284,7 @@ class QuestionBankApp {
     });
   }
 
+  // Populate the modal with the question data for editing.
   fillForm(questionId) {
     const question = this.state.questions.find((entry) => entry.id === questionId);
     if (!question) return;
@@ -282,6 +297,7 @@ class QuestionBankApp {
     this.openQuestionModal('edit');
   }
 
+  // Rebuild option inputs based on the saved question data.
   populateOptionFields(options, correctIndexes) {
     this.optionContainer.innerHTML = '';
     const total = Math.max(options.length, 4);
@@ -294,17 +310,20 @@ class QuestionBankApp {
     this.updateOptionControls();
   }
 
+  // Insert a new question record at the top of the list.
   addQuestion(questionPayload) {
     this.state.questions = [questionPayload, ...this.state.questions];
     return 'Question added.';
   }
 
+  // Replace the edited question while preserving order.
   updateQuestion(questionPayload) {
     this.state.questions = this.state.questions.map((item) =>
       (item.id === this.editingId ? questionPayload : item));
     return 'Question updated.';
   }
 
+  // Create a labeled input with a correct toggle and remove control.
   buildOptionField(value = '', isCorrect = false) {
     const wrapper = document.createElement('div');
     wrapper.className = 'option-field';
@@ -347,6 +366,7 @@ class QuestionBankApp {
     return wrapper;
   }
 
+  // Tear down option fields while enforcing minimum count.
   removeOptionField(field) {
     if (this.optionContainer.children.length <= this.minOptions) return;
     field.remove();
@@ -354,6 +374,7 @@ class QuestionBankApp {
     this.updateOptionControls();
   }
 
+  // Keep option numbering accurate when fields change.
   updateOptionLabels() {
     Array.from(this.optionContainer.children).forEach((field, index) => {
       const label = field.querySelector('.option-label');
@@ -363,6 +384,7 @@ class QuestionBankApp {
     });
   }
 
+  // Enable/disable add/remove controls based on min/max limits.
   updateOptionControls() {
     const canRemove = this.optionContainer.children.length > this.minOptions;
     this.optionContainer.querySelectorAll('.remove-option').forEach((button) => {
@@ -373,6 +395,7 @@ class QuestionBankApp {
     this.addOptionBtn.disabled = this.optionContainer.children.length >= this.maxOptions;
   }
 
+  // Reset the question form for a clean start.
   resetForm() {
     this.editingId = null;
     this.questionForm.reset();
@@ -388,10 +411,12 @@ class QuestionBankApp {
     this.updateFormMode('add');
   }
 
+  // Smooth-scroll helper for the modal.
   scrollToForm() {
     this.questionForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
+  // Toggle wording and buttons between add/edit flows.
   updateFormMode(mode = 'add') {
     if (!this.formTitleEl || !this.formSubtitleEl) return;
     if (mode === 'edit') {
@@ -419,6 +444,7 @@ class QuestionBankApp {
     }
   }
 
+  // Reveal the floating question modal.
   openQuestionModal(mode = 'add') {
     this.updateFormMode(mode);
     if (this.questionModal) {
@@ -427,6 +453,7 @@ class QuestionBankApp {
     document.body.classList.add('modal-open');
   }
 
+  // Hide the modal and restore page scroll.
   hideQuestionModal() {
     if (this.questionModal) {
       this.questionModal.classList.add('d-none');
@@ -434,6 +461,7 @@ class QuestionBankApp {
     document.body.classList.remove('modal-open');
   }
 
+  // Show quiz-building pills so admins can select questions for new quizzes.
   renderQuizQuestions() {
     this.quizQuestionList.innerHTML = '';
     if (!this.state.questions.length) {
@@ -464,6 +492,7 @@ class QuestionBankApp {
     this.updateQuizSelectionSummary();
   }
 
+  // Track checkboxes for the quiz creation panel.
   toggleQuizSelection(questionId, label, isChecked) {
     if (isChecked) {
       this.selectedQuizQuestionIds.add(questionId);
@@ -475,12 +504,14 @@ class QuestionBankApp {
     this.updateQuizSelectionSummary();
   }
 
+  // Refresh the summary badge showing how many questions are selected.
   updateQuizSelectionSummary() {
     if (!this.quizSelectionSummary) return;
     const count = this.selectedQuizQuestionIds.size;
     this.quizSelectionSummary.textContent = `${count} question${count === 1 ? '' : 's'} selected`;
   }
 
+  // Shorten long question text for the selection pills.
   truncateQuestion(text) {
     if (text.length <= 60) {
       return `<span>${text}</span>`;
@@ -488,6 +519,7 @@ class QuestionBankApp {
     return `<span>${text.slice(0, 60)}…</span>`;
   }
 
+  // Save a new quiz definition using the currently selected questions.
   handleQuizSubmit(event) {
     event.preventDefault();
     this.quizFeedback.innerHTML = '';
