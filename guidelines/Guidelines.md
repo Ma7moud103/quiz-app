@@ -1,61 +1,17 @@
-**Add your own guidelines here**
-<!--
+**Design Quiz Console Overview**
 
-System Guidelines
+This is the short explanation for anyone learning the app. It describes who uses it, what each page does, and how the pieces fit together.
 
-Use this file to provide the AI with rules and guidelines you want it to follow.
-This template outlines a few examples of things you can add. You can add your own sections and format it to suit your needs
+## Who uses it?
+- **Admins/instructors:** log in, manage question banks, build quizzes, and review learner results.
+- **Learners/students:** log in, pick a quiz, answer the questions, and see their score plus a review.
 
-TIP: More context isn't always better. It can confuse the LLM. Try and add the most important rules you need
+## What the app does (simple flow)
+1. **Login** – visitors land on `index.html`, enter the credentials, and the app moves them to the right place based on their role (admins → `question-bank.html`, learners → `dashboard.html`).
+2. **Question Bank page** – admins see a table of questions, filters, and a “Create Question” modal. They can add/edit questions (minimum 2 options, at least one correct) and use the quiz builder at the bottom to bundle questions together.
+3. **Dashboard page** – students browse the quizzes, filter/search, and hit “Start quiz” (admins do not see that button). Starting a quiz stores the session and jumps to the quiz runner.
+4. **Quiz runner** – shows one question at a time, lets users pick answers, tracks progress/score, and saves the result before sending them to the results page.
+5. **Results page** – displays the score summary, friendly message, and an optional review list that highlights which answers were correct or chosen.
 
-# General guidelines
-
-Any general rules you want the AI to follow.
-For example:
-
-* Only use absolute positioning when necessary. Opt for responsive and well structured layouts that use flexbox and grid by default
-* Refactor code as you go to keep code clean
-* Keep file sizes small and put helper functions and components in their own files.
-
---------------
-
-# Design system guidelines
-Rules for how the AI should make generations look like your company's design system
-
-Additionally, if you select a design system to use in the prompt box, you can reference
-your design system's components, tokens, variables and components.
-For example:
-
-* Use a base font-size of 14px
-* Date formats should always be in the format “Jun 10”
-* The bottom toolbar should only ever have a maximum of 4 items
-* Never use the floating action button with the bottom toolbar
-* Chips should always come in sets of 3 or more
-* Don't use a dropdown if there are 2 or fewer options
-
-You can also create sub sections and add more specific details
-For example:
-
-
-## Button
-The Button component is a fundamental interactive element in our design system, designed to trigger actions or navigate
-users through the application. It provides visual feedback and clear affordances to enhance user experience.
-
-### Usage
-Buttons should be used for important actions that users need to take, such as form submissions, confirming choices,
-or initiating processes. They communicate interactivity and should have clear, action-oriented labels.
-
-### Variants
-* Primary Button
-  * Purpose : Used for the main action in a section or page
-  * Visual Style : Bold, filled with the primary brand color
-  * Usage : One primary button per section to guide users toward the most important action
-* Secondary Button
-  * Purpose : Used for alternative or supporting actions
-  * Visual Style : Outlined with the primary color, transparent background
-  * Usage : Can appear alongside a primary button for less important actions
-* Tertiary Button
-  * Purpose : Used for the least important actions
-  * Visual Style : Text-only with no border, using primary color
-  * Usage : For actions that should be available but not emphasized
--->
+## Extras to keep in mind
+- The modal confirmations (delete, logout) come from the shared `confirm.js` helper; it opens the same overlay and returns a simple yes/no promise.  

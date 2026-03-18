@@ -422,7 +422,7 @@ main {
   margin-top: 2rem;
 }
 
-#next-question-btn {
+.quiz-nav-btn {
   background: linear-gradient(135deg, var(--primary), var(--primary-strong));
   color: var(--panel);
   border: none;
@@ -437,14 +437,20 @@ main {
   gap: 0.5rem;
 }
 
-#next-question-btn:hover {
+.quiz-nav-btn:hover {
   background: linear-gradient(135deg, var(--primary-strong), var(--accent));
   box-shadow: 0 6px 16px rgba(92, 224, 255, 0.4);
   transform: translateY(-2px);
 }
 
-#next-question-btn:active {
+.quiz-nav-btn:active {
   transform: translateY(0);
+}
+
+.quiz-nav-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 /* Previous Button (if needed) */

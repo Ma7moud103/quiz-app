@@ -104,6 +104,7 @@ class QuizRunner {
     this.optionsEl = document.getElementById('quiz-options');
     this.feedbackEl = document.getElementById('quiz-feedback');
     this.nextBtn = document.getElementById('next-question-btn');
+    this.prevBtn = document.getElementById('prev-question-btn');
 
     // Track the current quiz session, selection, and submission state.
     this.session = null;
@@ -121,6 +122,7 @@ class QuizRunner {
   bindEvents() {
     this.logoutBtn.addEventListener('click', this.handleLogout.bind(this));
     this.nextBtn.addEventListener('click', this.handleNext.bind(this));
+    this.prevBtn?.addEventListener('click', this.handlePrevious.bind(this));
   }
 
   // Display the greeting for the logged-in user.
@@ -226,6 +228,7 @@ class QuizRunner {
     this.renderOptions(currentQuestion);
     this.restorePreviousAnswer(); // Reapply any previously selected answer.
     this.updateNextButton();      // Update the button label to "Finish" on the last question.
+    this.updatePreviousButton();  // Disable the previous button on the first question.
     this.renderHeader();
   }
 
@@ -283,6 +286,20 @@ class QuizRunner {
   updateNextButton() {
     const isLastQuestion = this.session.currentIndex + 1 >= this.session.questions.length;
     this.nextBtn.textContent = isLastQuestion ? 'Finish quiz' : 'Next question';
+  }
+
+  // Enable or disable the Previous button depending on the current index.
+  updatePreviousButton() {
+    if (!this.prevBtn || !this.session) return;
+    this.prevBtn.disabled = this.session.currentIndex <= 0;
+  }
+
+  // Move back to the prior question without re-grading anything.
+  handlePrevious() {
+    if (!this.session || this.session.currentIndex <= 0) return;
+    this.session.currentIndex -= 1;
+    this.saveSession();
+    this.renderQuestion();
   }
 
   // Handle the Next button click, or finish if on the last question.
